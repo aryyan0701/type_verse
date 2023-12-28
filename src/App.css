@@ -1,0 +1,18 @@
+
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Ensure the container takes at least the full viewport height */
+  background-color: #1f2937;
+}
+
+.main-body {
+  flex: 1; /* This will make the main-body take the remaining space */
+}
+
+footer {
+  margin-top: auto; /* Push the footer to the bottom */
+  margin-bottom: 20px;
+}
+
