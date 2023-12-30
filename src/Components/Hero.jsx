@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const Hero = () => {
   const [startTime, setStartTime] = useState(null);
@@ -6,14 +6,51 @@ const Hero = () => {
   const [totalTimeTaken, setTotalTimeTaken] = useState(null);
   const [sentence, setSentence] = useState('');
   const [typingText, setTypingText] = useState('');
-  const [isTypingDisabled, setIsTypingDisabled] = useState(false);
+  const [isTypingDisabled, setIsTypingDisabled] = useState(true);
   const [score, setScore] = useState('');
 
   const sentences = [
-    'The quick brown fox jumps over the lazy dog 1',
-    'The quick brown fox jumps over the lazy dog 2',
-    'The quick brown fox jumps over the lazy dog 3'
+    "Discover the joy of learning and the thrill of achievement.",
+"Embrace the journey, and success will follow.",
+"In the dance of life, find your own rhythm.",
+"Explore the possibilities and unlock your potential.",
+"Dare to dream, and then make it happen.",
+"Create, innovate, and leave a lasting legacy.",
+"Every challenge is an opportunity in disguise.",
+"Strive for progress, not perfection.",
+"Find beauty in simplicity and purpose in every action.",
+"Chase your passions, and let them shape your destiny."
   ];
+
+  const checkUserInput = () => {
+    const displayedWords = sentence.split(' ');
+    const userInputWords = typingText.split(' ');
+  
+    const minLength = Math.min(displayedWords.length, userInputWords.length);
+  
+    let mistakes = 0;
+    let errorMessages = [];
+  
+    for (let i = 0; i < minLength; i++) {
+      if (displayedWords[i] !== userInputWords[i]) {
+        mistakes++;
+        errorMessages.push(`Word ${i + 1}: Expected "${displayedWords[i]}", but got "${userInputWords[i]}".`);
+      }
+    }
+  
+    if (displayedWords.length !== userInputWords.length) {
+      const extraWords = Math.abs(displayedWords.length - userInputWords.length);
+      const wordPlural = extraWords === 1 ? 'word' : 'words';
+      errorMessages.push(`You have to write ${extraWords} extra ${wordPlural} in your input.`);
+    }
+  
+    return { mistakes, errorMessages };
+  };
+  
+
+  useEffect(() => {
+    startTyping();
+  }, []); // Run once on component mount
 
   const calculateTypingSpeed = (time_taken) => {
     let totalWords = typingText.trim();
@@ -32,12 +69,22 @@ const Hero = () => {
 
   const endTypingTest = () => {
     setIsTypingDisabled(true);
-    setEndTime(new Date().getTime());
-
-    const totalTime = (endTime - startTime) / 1000;
+    // Use the functional form to get the latest state
+  setEndTime((prevEndTime) => {
+    const currentTime = new Date().getTime();
+    const totalTime = (currentTime - startTime) / 1000;
     setTotalTimeTaken(totalTime);
 
-    calculateTypingSpeed(totalTime);
+    const { mistakes, errorMessages } = checkUserInput();
+
+    if (mistakes === 0) {
+      calculateTypingSpeed(totalTime);
+    } else {
+      setScore(`You made ${mistakes} mistake. ${errorMessages.join(' ')}`);
+    }
+
+    return currentTime;
+  });
 
     setSentence('');
     setTypingText('');
@@ -64,17 +111,17 @@ const Hero = () => {
   };
 
   return (
-     
-    <>
-    <div id="showSentence" className=" container mt-4 text-gray-600 text-bold">
-      
+    <div className="flex flex-col items-center justify-center min-h-screen ">
+  
+      <div className="bg-white p-4 mb-4 rounded-md shadow-md max-w-md md:max-w-2xl w-full mt-[-6rem]">
         {sentence}
       </div>
 
-      <div className="typing_section max-w-3xl  mx-auto mt-8 p-4 bg-white shadow-md rounded-md">
+      {/* Text area and button */}
+      <div className="typing_section max-w-md md:max-w-6xl mx-auto p-4 bg-white shadow-md rounded-md">
         <label htmlFor="textarea"></label>
         <textarea
-        className='w-full h-40 border border-gray-300 rounded-md p-2 focus:outline-none focus:border-blue-500'
+          className="w-full h-60 border border-gray-300 rounded-md p-2 focus:outline-none focus:border-blue-500"
           name="textarea"
           id="textarea"
           cols="30"
@@ -94,10 +141,11 @@ const Hero = () => {
         >
           {isTypingDisabled ? 'Start' : 'Done'}
         </button>
-        <p id="score" className='mt-4 font-bold'>{score}</p>
+        <p id="score" className="mt-4 font-bold">
+          {score}
+        </p>
       </div>
-
-    </>
+    </div>
   );
 };
 
